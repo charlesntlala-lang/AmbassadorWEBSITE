@@ -2,10 +2,10 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import Image from "next/image"
-import { ChevronLeft, ChevronRight } from "lucide-react"
+import { ChevronLeft, ChevronRight, X } from "lucide-react"
 import { cn } from "@/lib/utils"
 
-const galleryImages = [
+const staticGalleryImages = [
   { src: "/images/img3.jpg", alt: "Science laboratory", caption: "State-of-the-art Science Lab" },
   { src: "/images/img5.jpg", alt: "Cultural performance", caption: "Cultural Arts Performance" },
   { src: "/images/img6.jpg", alt: "School library", caption: "Modern Library" },
@@ -14,144 +14,169 @@ const galleryImages = [
   { src: "/images/img9.jpg", alt: "Sports activities", caption: "Sports & Athletics" },
 ]
 
-export function Gallery() {
-  const ref = useRef<HTMLDivElement>(null)
-  const [isVisible, setIsVisible] = useState(false)
+interface GalleryProps {
+  aisImages?: string[]
+}
+
+export function Gallery({ aisImages = [] }: GalleryProps) {
+  const images = [
+    ...staticGalleryImages,
+    ...aisImages.map((src) => ({
+      src,
+      alt: "Gallery image",
+      caption: "",
+    })),
+  ]
+
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isAutoPlaying, setIsAutoPlaying] = useState(true)
+  const [modalIndex, setModalIndex] = useState<number | null>(null)
 
   const nextSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev + 1) % galleryImages.length)
-  }, [])
+    setCurrentIndex((prev) => (prev + 1) % images.length)
+  }, [images.length])
 
   const prevSlide = useCallback(() => {
-    setCurrentIndex((prev) => (prev - 1 + galleryImages.length) % galleryImages.length)
-  }, [])
+    setCurrentIndex((prev) => (prev - 1 + images.length) % images.length)
+  }, [images.length])
 
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true)
-        }
-      },
-      { threshold: 0.2 }
-    )
+  const nextModal = () => {
+    if (modalIndex === null) return
+    setModalIndex((modalIndex + 1) % images.length)
+  }
 
-    if (ref.current) {
-      observer.observe(ref.current)
-    }
+  const prevModal = () => {
+    if (modalIndex === null) return
+    setModalIndex((modalIndex - 1 + images.length) % images.length)
+  }
 
-    return () => observer.disconnect()
-  }, [])
-
+  // Autoplay
   useEffect(() => {
     if (!isAutoPlaying) return
     const interval = setInterval(nextSlide, 5000)
     return () => clearInterval(interval)
   }, [isAutoPlaying, nextSlide])
 
-  return (
-    <section id="gallery" ref={ref} className="py-20 sm:py-28 bg-primary">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        {/* Section Header */}
-        <div
-          className={cn(
-            "text-center max-w-3xl mx-auto mb-12 transition-all duration-700",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          )}
-        >
-          <p className="text-accent font-medium tracking-wide uppercase mb-4">Campus Life</p>
-          <h2 className="font-serif text-3xl sm:text-4xl md:text-5xl font-bold text-primary-foreground mb-6 text-balance">
-            Experience Life at Ambassador
-          </h2>
-          <p className="text-primary-foreground/80 leading-relaxed">
-            Take a glimpse into the vibrant daily life at our school through our photo gallery.
-          </p>
-        </div>
+  // ESC + Arrow navigation + scroll lock
+  useEffect(() => {
+    const handleKey = (e: KeyboardEvent) => {
+      if (modalIndex === null) return
 
-        {/* Main Carousel */}
-        <div
-          className={cn(
-            "relative transition-all duration-700",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          )}
-          style={{ transitionDelay: "200ms" }}
-          onMouseEnter={() => setIsAutoPlaying(false)}
-          onMouseLeave={() => setIsAutoPlaying(true)}
-        >
-          <div className="relative aspect-video md:aspect-[21/9] rounded-2xl overflow-hidden shadow-2xl">
-            {galleryImages.map((image, index) => (
-              <div
-                key={image.src}
-                className={cn(
-                  "absolute inset-0 transition-opacity duration-700",
-                  index === currentIndex ? "opacity-100" : "opacity-0"
-                )}
-              >
-                <Image
-                  src={image.src || "/placeholder.svg"}
-                  alt={image.alt}
-                  fill
-                  className="object-cover"
-                />
-                {/* Caption Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-6 sm:p-8">
-                  <p className="text-white text-lg sm:text-xl font-semibold">
-                    {image.caption}
-                  </p>
-                </div>
-              </div>
-            ))}
+      if (e.key === "Escape") setModalIndex(null)
+      if (e.key === "ArrowRight") nextModal()
+      if (e.key === "ArrowLeft") prevModal()
+    }
+
+    if (modalIndex !== null) {
+      document.body.style.overflow = "hidden"
+      window.addEventListener("keydown", handleKey)
+    } else {
+      document.body.style.overflow = "auto"
+    }
+
+    return () => window.removeEventListener("keydown", handleKey)
+  }, [modalIndex])
+
+  return (
+    <>
+      {/* ===== GALLERY SECTION ===== */}
+      <section id="gallery" className="py-20 bg-primary">
+        <div className="mx-auto max-w-7xl px-6 relative">
+          
+          {/* Main Image */}
+          <div
+            className="relative aspect-video md:aspect-[21/9] rounded-2xl overflow-hidden shadow-2xl group cursor-pointer transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_60px_rgba(0,0,0,0.4)]"
+            onMouseEnter={() => setIsAutoPlaying(false)}
+            onMouseLeave={() => setIsAutoPlaying(true)}
+            onClick={() => setModalIndex(currentIndex)}
+          >
+            <Image
+              src={images[currentIndex].src}
+              alt={images[currentIndex].alt}
+              fill
+              className="object-cover transition-transform duration-700 group-hover:scale-110"
+            />
+
+            {/* Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition duration-500" />
+
+            {/* Click Button */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition duration-500">
+              <span className="bg-white/20 backdrop-blur-md text-white px-6 py-3 rounded-full text-sm tracking-wide transition transform group-hover:scale-105">
+                Click to View
+              </span>
+            </div>
+
+            {/* Caption */}
+            <div className="absolute bottom-6 left-6 text-white text-lg font-semibold">
+              {images[currentIndex].caption}
+            </div>
           </div>
 
-          {/* Navigation Arrows */}
+          {/* Carousel Arrows */}
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors backdrop-blur-sm"
-            aria-label="Previous image"
+            className="absolute left-6 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
           >
-            <ChevronLeft className="h-6 w-6" />
+            <ChevronLeft />
           </button>
+
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors backdrop-blur-sm"
-            aria-label="Next image"
+            className="absolute right-6 top-1/2 -translate-y-1/2 p-3 rounded-full bg-white/20 text-white hover:bg-white/30 backdrop-blur-sm"
           >
-            <ChevronRight className="h-6 w-6" />
+            <ChevronRight />
           </button>
         </div>
+      </section>
 
-        {/* Thumbnail Navigation */}
-        <div
-          className={cn(
-            "mt-6 flex justify-center gap-2 transition-all duration-700",
-            isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
-          )}
-          style={{ transitionDelay: "400ms" }}
-        >
-          {galleryImages.map((image, index) => (
+      {/* ===== MODAL ===== */}
+      {modalIndex !== null && (
+        <div className="fixed inset-0 z-50 bg-black/95 backdrop-blur-sm flex items-center justify-center">
+          
+          {/* Background Click Close */}
+          <div
+            className="absolute inset-0"
+            onClick={() => setModalIndex(null)}
+          />
+
+          {/* Modal Content */}
+          <div className="relative w-[95%] max-w-6xl transition-all duration-500">
+            
+            {/* Close */}
             <button
-              key={image.src}
-              onClick={() => setCurrentIndex(index)}
-              className={cn(
-                "relative w-16 h-12 sm:w-20 sm:h-14 rounded-lg overflow-hidden transition-all duration-300",
-                index === currentIndex
-                  ? "ring-2 ring-accent ring-offset-2 ring-offset-primary scale-105"
-                  : "opacity-60 hover:opacity-100"
-              )}
-              aria-label={`Go to image ${index + 1}`}
+              onClick={() => setModalIndex(null)}
+              className="absolute -top-14 right-0 text-white bg-white/10 hover:bg-white/20 p-3 rounded-full backdrop-blur-md"
             >
-              <Image
-                src={image.src || "/placeholder.svg"}
-                alt={image.alt}
-                fill
-                className="object-cover"
-              />
+              <X size={26} />
             </button>
-          ))}
+
+            {/* Image */}
+            <Image
+              src={images[modalIndex].src}
+              alt="Expanded view"
+              width={1600}
+              height={1200}
+              className="w-full h-auto max-h-[90vh] object-contain rounded-2xl"
+            />
+
+            {/* Modal Navigation */}
+            <button
+              onClick={prevModal}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-16 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md"
+            >
+              <ChevronLeft size={28} />
+            </button>
+
+            <button
+              onClick={nextModal}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-16 p-4 bg-white/10 hover:bg-white/20 text-white rounded-full backdrop-blur-md"
+            >
+              <ChevronRight size={28} />
+            </button>
+          </div>
         </div>
-      </div>
-    </section>
+      )}
+    </>
   )
 }

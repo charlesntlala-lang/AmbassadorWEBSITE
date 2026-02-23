@@ -8,30 +8,48 @@ import { cn } from "@/lib/utils"
 
 interface HeroProps {
   onApplyClick: () => void
+  heroImages?: string[];
 }
 
-const slides = [
-  {
-    image: "/images/hero-1.jpg",
-    title: "Excellence in Education",
-    subtitle: "Nurturing Tomorrow's Leaders Today",
-    description: "Welcome to Ambassador International School, where academic excellence meets character development in a supportive learning environment."
-  },
-  {
-    image: "/images/hero-2.jpg",
-    title: "World-Class Learning",
-    subtitle: "Innovative Teaching Methods",
-    description: "Our dedicated educators use cutting-edge teaching methods to inspire curiosity and foster a lifelong love of learning."
-  },
-  {
-    image: "/images/hero-3.jpg",
-    title: "Holistic Development",
-    subtitle: "Mind, Body, and Spirit",
-    description: "Beyond academics, we offer comprehensive programs in sports, arts, and leadership to develop well-rounded individuals."
+// build slides from heroImages; each image becomes its own slide
+function buildSlides(heroImages: string[] = []) {
+  if (heroImages.length) {
+    return heroImages.map((img) => ({
+      images: [img],
+      title: "",
+      subtitle: "",
+      description: "",
+    }));
   }
-]
 
-export function Hero({ onApplyClick }: HeroProps) {
+  // fallback: single-image slides with text as before
+  return [
+    {
+      images: ["/images/hero-1.jpg"],
+      title: "Excellence in Education",
+      subtitle: "Nurturing Tomorrow's Leaders Today",
+      description: "Welcome to Ambassador International School, where academic excellence meets character development in a supportive learning environment."
+    },
+    {
+      images: ["/images/hero-2.jpg"],
+      title: "World-Class Learning",
+      subtitle: "Innovative Teaching Methods",
+      description: "Our dedicated educators use cutting-edge teaching methods to inspire curiosity and foster a lifelong love of learning."
+    },
+    {
+      images: ["/images/hero-3.jpg"],
+      title: "Holistic Development",
+      subtitle: "Mind, Body, and Spirit",
+      description: "Beyond academics, we offer comprehensive programs in sports, arts, and leadership to develop well-rounded individuals."
+    }
+  ];
+}
+
+// slides will be computed in component from props; placeholder not needed
+
+export function Hero({ onApplyClick, heroImages = [] }: HeroProps) {
+  // build slides from passed heroImages
+  const slides = buildSlides(heroImages);
   const [currentSlide, setCurrentSlide] = useState(0)
   const [isAnimating, setIsAnimating] = useState(false)
 
@@ -59,72 +77,49 @@ export function Hero({ onApplyClick }: HeroProps) {
       {/* Background Images */}
       {slides.map((slide, index) => (
         <div
-          key={slide.image}
+          key={index}
           className={cn(
             "absolute inset-0 transition-opacity duration-700",
             index === currentSlide ? "opacity-100" : "opacity-0"
           )}
         >
-          <Image
-            src={slide.image || "/placeholder.svg"}
-            alt={slide.title}
-            fill
-            className="object-cover"
-            priority={index === 0}
-          />
+          {/* single image slide */}
+          <div className="absolute inset-0">
+            <Image
+              src={slide.images[0] || "/placeholder.svg"}
+              alt={slide.title}
+              fill
+              className="object-cover md:object-contain"
+              priority={index === 0}
+            />
+          </div>
           <div className="absolute inset-0 bg-primary/60" />
         </div>
       ))}
 
-      {/* Content */}
-      <div className="relative z-10 flex h-full items-center">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 w-full">
-          <div className="max-w-3xl">
-            {slides.map((slide, index) => (
-              <div
-                key={slide.title}
-                className={cn(
-                  "transition-all duration-500",
-                  index === currentSlide
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-4 absolute"
-                )}
-              >
-                {index === currentSlide && (
-                  <>
-                    <p className="mb-4 text-accent font-medium tracking-wide uppercase animate-in fade-in slide-in-from-bottom-4 duration-500">
-                      {slide.subtitle}
-                    </p>
-                    <h1 className="mb-6 font-serif text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-tight text-balance animate-in fade-in slide-in-from-bottom-4 duration-500 delay-100">
-                      {slide.title}
-                    </h1>
-                    <p className="mb-8 text-lg sm:text-xl text-white/90 max-w-2xl leading-relaxed animate-in fade-in slide-in-from-bottom-4 duration-500 delay-200">
-                      {slide.description}
-                    </p>
-                    <div className="flex flex-wrap gap-4 animate-in fade-in slide-in-from-bottom-4 duration-500 delay-300">
-                      <Button
-                        size="lg"
-                        onClick={onApplyClick}
-                        className="bg-accent text-accent-foreground hover:bg-accent/90 text-base px-8"
-                      >
-                        Apply Now
-                      </Button>
-                      <Button
-                        size="lg"
-                        variant="outline"
-                        onClick={() => {
-                          document.querySelector("#about")?.scrollIntoView({ behavior: "smooth" })
-                        }}
-                        className="border-white text-white hover:bg-white hover:text-primary text-base px-8"
-                      >
-                        Learn More
-                      </Button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
+      {/* Content overlay with buttons under the join text */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+        <p className="text-white text-3xl font-bold text-center px-4">
+          Join us at Ambassador International School
+        </p>
+        <div className="mt-4 flex gap-4 pointer-events-auto">
+          <Button
+            size="lg"
+            onClick={onApplyClick}
+            className="bg-accent text-accent-foreground hover:bg-accent/90 text-base px-8"
+          >
+            Apply Now
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            onClick={() => {
+              document.querySelector("#about")?.scrollIntoView({ behavior: "smooth" })
+            }}
+            className="border-white text-blue-500 hover:bg-white hover:text-primary text-base px-8"
+          >
+            Learn More
+          </Button>
         </div>
       </div>
 

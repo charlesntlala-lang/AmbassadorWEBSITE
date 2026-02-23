@@ -22,6 +22,7 @@ const navLinks = [
 export function Header({ onApplyClick }: HeaderProps) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  // logo is always the static school logo; we no longer rotate through hero images
 
   useEffect(() => {
     const handleScroll = () => {

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react"
 import { Baby, BookOpen, Trophy, Palette, Cpu, Languages } from "lucide-react"
+import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 
 const programs = [
@@ -49,7 +50,11 @@ const programs = [
   },
 ]
 
-export function Programs() {
+interface ProgramsProps {
+  onApplyClick: () => void
+}
+
+export function Programs({ onApplyClick }: ProgramsProps) {
   const ref = useRef<HTMLDivElement>(null)
   const [isVisible, setIsVisible] = useState(false)
 
@@ -111,6 +116,13 @@ export function Programs() {
                 <span className="text-xs px-2 py-1 rounded-full bg-muted text-muted-foreground">{program.ages}</span>
               </div>
               <p className="text-muted-foreground leading-relaxed">{program.description}</p>
+              <Button
+                size="sm"
+                onClick={onApplyClick}
+                className="mt-4 bg-accent text-accent-foreground hover:bg-accent/90"
+              >
+                Enroll Now
+              </Button>
             </div>
           ))}
         </div>
