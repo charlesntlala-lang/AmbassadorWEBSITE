@@ -18,14 +18,14 @@ const contactInfo = [
   {
     icon: Phone,
     title: "Phone",
-    content: "+266 2231 2345",
-    link: "tel:+26622312345"
+    content: "+266 63118056",
+    link: "tel:+26663118056"
   },
   {
     icon: Mail,
     title: "Email",
-    content: "info@ambassadorschool.ls",
-    link: "mailto:info@ambassadorschool.ls"
+    content: "mbssdrinternational@gmail.com",
+    link: "mailto:mbssdrinternational@gmail.com"
   },
   {
     icon: Clock,
