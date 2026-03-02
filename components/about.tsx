@@ -107,10 +107,12 @@ export function About() {
             </p>
 
             <p className="text-muted-foreground leading-relaxed mb-10">
-              Our mission is to develop confident, creative, and compassionate
-              learners who will make positive contributions to society. We
-              combine academic rigor with character development to ensure our
-              students are well-prepared for future success.
+              Our mission is to develop well rounded, confident and responsible individuals who aspire to achieve 
+              their full potential in order to live meaningful lives.
+Our ultimate goal is to equip children with a character that affords 
+them to enter heaven. We believe in an all-round Christ centered 
+education, which aims at restoring as far as possible, the image of
+God in men…
             </p>
 
             {/* Features Grid */}
