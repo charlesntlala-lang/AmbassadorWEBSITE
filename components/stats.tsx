@@ -4,10 +4,10 @@ import { useEffect, useRef, useState } from "react"
 import { cn } from "@/lib/utils"
 
 const stats = [
-  { value: 15, suffix: "+", label: "Years of Excellence" },
-  { value: 500, suffix: "+", label: "Students Enrolled" },
+  { value: 5, suffix: "+", label: "Years of Excellence" },
+  { value: 100, suffix: "+", label: "Students Enrolled" },
   { value: 98, suffix: "%", label: "Success Rate" },
-  { value: 50, suffix: "+", label: "Qualified Teachers" },
+  { value: 10, suffix: "+", label: "Qualified Teachers" },
 ]
 
 function AnimatedCounter({ value, suffix, isVisible }: { value: number; suffix: string; isVisible: boolean }) {
