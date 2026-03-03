@@ -77,7 +77,7 @@ export function Footer({ onApplyClick }: FooterProps) {
               </div>
             </div>
             <p className="text-primary-foreground/80 leading-relaxed mb-6">
-              Nurturing tomorrow&apos;s leaders through academic excellence, character development, and holistic education since 2009.
+              Nurturing tomorrow&apos;s leaders through academic excellence, character development, and holistic education since 2020.
             </p>
             {/* Social Links */}
             <div className="flex gap-3">
